@@ -3,6 +3,8 @@ package com.example.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -10,18 +12,24 @@ import redis.clients.jedis.JedisPool;
 public class RedisService {
 	
 	@Autowired
-	JedisPool jedisPool;
+	JedisPool pool;
 	
+	@HystrixCommand(fallbackMethod="getFallback")
 	public String getVal(String key){
-		try (Jedis jedis = jedisPool.getResource()){
+		try (Jedis jedis = pool.getResource()){
 			return jedis.get(key);
 		}
 	}
 	
-	public boolean putKeyVal(String key, String val){
-		try (Jedis jedis = jedisPool.getResource()){
+	@HystrixCommand(fallbackMethod="getFallback")
+	public String putKeyVal(String key, String val){
+		try (Jedis jedis = pool.getResource()){
 			jedis.set(key, val);
-			return true;
+			return "Success";
 		}
+	}
+	
+	protected String getFallback(){
+		return "Connection Failure";
 	}
 }

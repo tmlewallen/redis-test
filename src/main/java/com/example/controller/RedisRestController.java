@@ -24,7 +24,7 @@ public class RedisRestController {
 	}
 	
 	@RequestMapping(path="/put", method=RequestMethod.POST)
-	public boolean putKeyVal(@RequestBody KeyValPair pair){
+	public String putKeyVal(@RequestBody KeyValPair pair){
 		return service.putKeyVal(pair.getKey(), pair.getVal());
 	}
 }
